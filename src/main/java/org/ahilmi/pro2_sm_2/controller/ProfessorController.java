@@ -26,7 +26,7 @@ public class ProfessorController {
     }
 
     @GetMapping(path = "/list")
-    public List<ResponseProfessorDTO> getAllStudents() {
+    public List<ResponseProfessorDTO> getAllProfessor() {
         return professorService.getAllProfessor();
     }
 
