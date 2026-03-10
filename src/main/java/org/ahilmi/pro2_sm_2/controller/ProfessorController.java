@@ -26,14 +26,14 @@ public class ProfessorController {
     }
 
     @GetMapping(path = "/list")
-    public List<ResponseProfessorDTO> getAllStudents() {
-        return professorService.getAllStudents();
+    public List<ResponseProfessorDTO> getAllProfessor() {
+        return professorService.getAllProfessor();
     }
 
 
     @GetMapping(path = "/list/{id}") // ---> bu satırdaki {...} ile parametrede name = "..." alanına verdiğim değer aynı olmalı.
     public ResponseProfessorDTO getProfessorById(@PathVariable(name = "id") Integer id) {
-        return professorService.getStudentById(id);
+        return professorService.getProfessorById(id);
     }
 
 

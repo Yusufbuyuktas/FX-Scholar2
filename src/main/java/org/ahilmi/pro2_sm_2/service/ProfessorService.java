@@ -34,7 +34,7 @@ public class ProfessorService {
     }
 
 
-    public List<ResponseProfessorDTO> getAllStudents() {
+    public List<ResponseProfessorDTO> getAllProfessor() {
         List<ResponseProfessorDTO> responseList = new ArrayList<>();
 
         List<Professor> professorList = professorRepository.findAll(); // jparepository'nin sağladığı findAll metodunu kullanıyorum. db'den entity biçiminde alıyorum.
@@ -47,7 +47,7 @@ public class ProfessorService {
     }
 
 
-    public ResponseProfessorDTO getStudentById(Integer id) {
+    public ResponseProfessorDTO getProfessorById(Integer id) {
         ResponseProfessorDTO response = new ResponseProfessorDTO();
         Optional<Professor> professor = professorRepository.findById(id);
 
