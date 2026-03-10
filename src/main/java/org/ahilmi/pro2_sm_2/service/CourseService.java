@@ -1,13 +1,10 @@
 package org.ahilmi.pro2_sm_2.service;
 
-import org.ahilmi.pro2_sm_2.dto.ResponseProfessorDTO;
 import org.ahilmi.pro2_sm_2.dto.RequestCourseDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseCourseDTO;
-import org.ahilmi.pro2_sm_2.dto.ResponseProfessorDTO;
 import org.ahilmi.pro2_sm_2.model.entity.Course;
 import org.ahilmi.pro2_sm_2.repository.CourseRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,10 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CourseService {
+public class CourseService implements ICourseService{
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+
+    public CourseService(CourseRepository courseRepository){
+        this.courseRepository =courseRepository;
+    }
+
     public ResponseCourseDTO saveCourse(RequestCourseDTO requestCourseDTO) {
      ResponseCourseDTO responseCourseDTO = new ResponseCourseDTO(); // response objesi oluşturldu çünkü en son cevap olark vereceğiz
      Course course = new Course();// Db için çünkü dto ile değil entity ile çalışır

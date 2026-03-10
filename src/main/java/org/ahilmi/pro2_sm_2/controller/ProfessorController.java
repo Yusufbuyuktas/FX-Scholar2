@@ -4,7 +4,6 @@ package org.ahilmi.pro2_sm_2.controller;
 import org.ahilmi.pro2_sm_2.dto.RequestProfessorDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseProfessorDTO;
 import org.ahilmi.pro2_sm_2.service.ProfessorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +14,9 @@ import java.util.List;
 @RequestMapping("/rest/api/professor")
 public class ProfessorController {
 
-    @Autowired
-    private ProfessorService professorService;
+    private final ProfessorService professorService;
+
+    public ProfessorController(ProfessorService professorService) {this.professorService = professorService;}
 
 
     @PostMapping(path = "/save")
