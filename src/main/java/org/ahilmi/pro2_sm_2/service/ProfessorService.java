@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProfessorService {
+public class ProfessorService implements IProfessorService{
 
     private final ProfessorRepository professorRepository;
 

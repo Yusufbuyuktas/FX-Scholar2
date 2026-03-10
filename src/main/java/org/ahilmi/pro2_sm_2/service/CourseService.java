@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CourseService {
+public class CourseService implements ICourseService{
 
     private final CourseRepository courseRepository;
 
