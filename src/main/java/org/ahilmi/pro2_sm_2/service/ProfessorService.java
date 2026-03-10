@@ -6,8 +6,6 @@ import org.ahilmi.pro2_sm_2.dto.ResponseProfessorDTO;
 import org.ahilmi.pro2_sm_2.model.entity.Professor;
 import org.ahilmi.pro2_sm_2.repository.ProfessorRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +17,11 @@ import java.util.Optional;
 @Service
 public class ProfessorService {
 
-    @Autowired
-    private ProfessorRepository professorRepository;
+    private final ProfessorRepository professorRepository;
+
+    public ProfessorService(ProfessorRepository professorRepository){
+        this.professorRepository =professorRepository;
+    }
 
     public ResponseProfessorDTO saveProfessor(RequestProfessorDTO requestProfessorDTO) {
         ResponseProfessorDTO response = new ResponseProfessorDTO();

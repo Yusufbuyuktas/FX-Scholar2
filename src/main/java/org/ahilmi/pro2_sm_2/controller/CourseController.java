@@ -4,7 +4,6 @@ package org.ahilmi.pro2_sm_2.controller;
 import org.ahilmi.pro2_sm_2.dto.RequestCourseDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseCourseDTO;
 import org.ahilmi.pro2_sm_2.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,8 +12,9 @@ import java.util.List;
 @RequestMapping("/rest/api/course")
 public class CourseController {
 
-    @Autowired
-    private CourseService courseService;
+    private final CourseService courseService;
+
+    public CourseController(CourseService courseService) {this.courseService = courseService;}
 
     @PostMapping(path = "/save")
     public ResponseCourseDTO saveCourse(@RequestBody RequestCourseDTO requestCourseDTO ){
