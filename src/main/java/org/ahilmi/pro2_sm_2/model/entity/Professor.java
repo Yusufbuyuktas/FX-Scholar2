@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "professors")
 @Data
@@ -24,5 +26,6 @@ public class Professor {
     @Column(name = "department")
     private String department;
 
-
+    @OneToMany(mappedBy = "professor")
+    private List<Teaches> teaches;
 }

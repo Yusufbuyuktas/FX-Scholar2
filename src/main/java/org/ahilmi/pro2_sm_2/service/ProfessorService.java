@@ -9,6 +9,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.ahilmi.pro2_sm_2.dto.ResponseTeachesDTO;
+import org.ahilmi.pro2_sm_2.model.entity.Teaches;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +56,31 @@ public class ProfessorService implements IProfessorService{
 
         if (professor.isPresent()) {
             Professor dbProf = professor.get();
-            BeanUtils.copyProperties(dbProf, response); // dto türüne çeviriyorum.
+            BeanUtils.copyProperties(dbProf, response);
+
+            List<ResponseTeachesDTO> teachesList = new ArrayList<>();
+
+            if (dbProf.getTeaches() != null) {
+                for (Teaches teaches : dbProf.getTeaches()) {
+                    ResponseTeachesDTO teachesDTO = new ResponseTeachesDTO();
+                    teachesDTO.setId(teaches.getId());
+                    teachesDTO.setProfessorName(teaches.getProfessor().getName());
+                    teachesDTO.setCourseName(teaches.getCourse().getName());
+                    teachesDTO.setStudentCount(teaches.getStudentCount());
+                    teachesDTO.setStartDate(teaches.getStartDate());
+                    teachesDTO.setEndingDate(teaches.getEndingDate());
+
+                    teachesList.add(teachesDTO);
+                }
+            }
+
+            response.setTeaches(teachesList);
+            return response;
         }
 
-        return response;
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Verilen ID ile eşleşen bir profesör bulunamadı: " + id);
     }
-
 
     public void deleteProfessor(Integer id) {
         Optional<Professor> professor = professorRepository.findById(id);
