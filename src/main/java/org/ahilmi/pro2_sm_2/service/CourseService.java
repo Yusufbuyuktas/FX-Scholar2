@@ -89,5 +89,4 @@ public class CourseService implements ICourseService{
         throw new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND);
     }
 
-
 }

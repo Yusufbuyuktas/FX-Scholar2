@@ -3,6 +3,9 @@ package org.ahilmi.pro2_sm_2.service;
 
 import org.ahilmi.pro2_sm_2.dto.RequestProfessorDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseProfessorDTO;
+import org.ahilmi.pro2_sm_2.exception.ErrorMessages;
+import org.ahilmi.pro2_sm_2.exception.ResourceAlreadyExistsException;
+import org.ahilmi.pro2_sm_2.exception.ResourceNotFoundException;
 import org.ahilmi.pro2_sm_2.model.entity.Professor;
 import org.ahilmi.pro2_sm_2.repository.ProfessorRepository;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +29,10 @@ public class ProfessorService implements IProfessorService{
     }
 
     public ResponseProfessorDTO saveProfessor(RequestProfessorDTO requestProfessorDTO) {
+        if (professorRepository.existsByName(requestProfessorDTO.getName())) {
+            throw new ResourceAlreadyExistsException(ErrorMessages.ERROR_PROFESSOR_ALREADY_EXIST);
+        }
+
         ResponseProfessorDTO response = new ResponseProfessorDTO();
         Professor professor = new Professor();
         BeanUtils.copyProperties(requestProfessorDTO, professor); // 1. parametre --> source, 2. parametre --> target
@@ -52,7 +59,7 @@ public class ProfessorService implements IProfessorService{
 
     public ResponseProfessorDTO getProfessorById(Integer id) {
         ResponseProfessorDTO response = new ResponseProfessorDTO();
-        Optional<Professor> professor = professorRepository.findById(id);
+        Optional<Professor> professor = professorRepository.findById(id); // db'den prof'u çektim
 
         if (professor.isPresent()) {
             Professor dbProf = professor.get();
@@ -60,8 +67,8 @@ public class ProfessorService implements IProfessorService{
 
             List<ResponseTeachesDTO> teachesList = new ArrayList<>();
 
-            if (dbProf.getTeaches() != null) {
-                for (Teaches teaches : dbProf.getTeaches()) {
+            if (dbProf.getTeaches() != null) { // bulduğumuz prof'un verdiği course'ları dto'ya çevirip kullanıcıya döneceğiz.
+                for (Teaches teaches : dbProf.getTeaches()) {  // prof'un verdiği course'lar bir liste formatında döndüğü için foreach kullanarak her bir course'u dto'ya çeviriyoruz.
                     ResponseTeachesDTO teachesDTO = new ResponseTeachesDTO();
                     teachesDTO.setId(teaches.getId());
                     teachesDTO.setProfessorName(teaches.getProfessor().getName());
@@ -78,8 +85,7 @@ public class ProfessorService implements IProfessorService{
             return response;
         }
 
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Verilen ID ile eşleşen bir profesör bulunamadı: " + id);
+        throw new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND + " : " + id);
     }
 
     public void deleteProfessor(Integer id) {
@@ -87,7 +93,10 @@ public class ProfessorService implements IProfessorService{
 
         if (professor.isPresent()) {
             professorRepository.delete(professor.get()); // delete, bir entity bekler.
+            return;
         }
+
+        throw new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND + " : " + id);
     }
 
 
@@ -107,9 +116,7 @@ public class ProfessorService implements IProfessorService{
             return response;
         }
 
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Verilen ID ile eşleşen bir profesör bulunamadı: " + id);
+        throw new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND + ": " + id);
     }
-
-
 
 }

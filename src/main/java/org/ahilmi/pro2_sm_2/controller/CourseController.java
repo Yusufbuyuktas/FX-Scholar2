@@ -1,6 +1,7 @@
 package org.ahilmi.pro2_sm_2.controller;
 
 
+import jakarta.validation.Valid;
 import org.ahilmi.pro2_sm_2.dto.RequestCourseDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseCourseDTO;
 import org.ahilmi.pro2_sm_2.service.CourseService;
@@ -22,7 +23,7 @@ public class CourseController {
     public CourseController(CourseService courseService) {this.courseService = courseService;}
 
     @PostMapping(path = "/save")
-    public ResponseEntity<ResponseCourseDTO> saveCourse(@RequestBody RequestCourseDTO requestCourseDTO ){
+    public ResponseEntity<ResponseCourseDTO> saveCourse(@Valid @RequestBody RequestCourseDTO requestCourseDTO ){
         ResponseCourseDTO response = courseService.saveCourse(requestCourseDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 created dönüyoruz
     }
@@ -47,7 +48,7 @@ public class CourseController {
     }
 
     @PutMapping(path = "/update/{id}")
-    public ResponseEntity<ResponseCourseDTO> updateCourseById(@PathVariable(name = "id") Integer id, @RequestBody RequestCourseDTO requestCourseDTO){
+    public ResponseEntity<ResponseCourseDTO> updateCourseById(@PathVariable(name = "id") Integer id, @Valid @RequestBody RequestCourseDTO requestCourseDTO){
         if (id == null || id == 0 || requestCourseDTO == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(courseService.updateCourseById(id, requestCourseDTO), HttpStatus.OK);
     }
