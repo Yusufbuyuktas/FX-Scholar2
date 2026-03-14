@@ -6,9 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TeachesRepository extends JpaRepository<Teaches, Integer> {
-    
-    
 
+
+    boolean existsByProfessorIdAndCourseId(Integer professorId, Integer courseId);
 
 
 }
