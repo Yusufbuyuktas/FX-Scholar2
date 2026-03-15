@@ -3,6 +3,7 @@ package org.ahilmi.pro2_sm_2.service;
 import org.ahilmi.pro2_sm_2.dto.RequestTeachesDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseTeachesDTO;
 import org.ahilmi.pro2_sm_2.exception.ErrorMessages;
+import org.ahilmi.pro2_sm_2.exception.InvalidDateRangeException;
 import org.ahilmi.pro2_sm_2.exception.ResourceAlreadyExistsException;
 import org.ahilmi.pro2_sm_2.exception.ResourceNotFoundException;
 import org.ahilmi.pro2_sm_2.model.entity.Course;
@@ -12,9 +13,7 @@ import org.ahilmi.pro2_sm_2.repository.CourseRepository;
 import org.ahilmi.pro2_sm_2.repository.ProfessorRepository;
 import org.ahilmi.pro2_sm_2.repository.TeachesRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +35,7 @@ public class TeachesService implements ITeachesService {
 
     @Override
     public ResponseTeachesDTO saveTeaches(RequestTeachesDTO request) {
+        validateDateRange(request);
 
         if (teachesRepository.existsByProfessorIdAndCourseId(request.getProfessorId(), request.getCourseId())) {
             throw new ResourceAlreadyExistsException(ErrorMessages.ERROR_TEACH_ALREADY_EXIST);
@@ -89,6 +89,8 @@ public class TeachesService implements ITeachesService {
 
     @Override
     public ResponseTeachesDTO updateTeachesById(Integer id, RequestTeachesDTO request) {
+        validateDateRange(request);
+
         Teaches dbTeaches = teachesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_TEACH_NOT_FOUND));
 
@@ -107,6 +109,14 @@ public class TeachesService implements ITeachesService {
         System.out.println("LOG INFO: teach updated -> ID: " + updated.getId());
 
         return convertToResponseDTO(updated);
+    }
+
+    private void validateDateRange(RequestTeachesDTO request) {
+        if (request.getStartDate() != null
+                && request.getEndingDate() != null
+                && request.getStartDate().isAfter(request.getEndingDate())) {
+            throw new InvalidDateRangeException(ErrorMessages.ERROR_INVALID_DATE_RANGE);
+        }
     }
 
     // entity'den dto dönüşü tek noktadan yapılır

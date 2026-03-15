@@ -7,4 +7,5 @@ public class ErrorMessages {
     public static final String ERROR_COURSE_ALREADY_EXIST = "Course Already Exist";
     public static final String ERROR_PROFESSOR_ALREADY_EXIST = "Professor Already Exist";
     public static final String ERROR_TEACH_ALREADY_EXIST = "Teach Already Exist";
+    public static final String ERROR_INVALID_DATE_RANGE = "Start date cannot be after ending date.";
 }
