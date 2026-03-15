@@ -46,46 +46,20 @@ public class ProfessorService implements IProfessorService{
 
     public List<ResponseProfessorDTO> getAllProfessor() {
         List<ResponseProfessorDTO> responseList = new ArrayList<>();
-
         List<Professor> professorList = professorRepository.findAll(); // jparepository'nin sağladığı findAll metodunu kullanıyorum. db'den entity biçiminde alıyorum.
+
         for (Professor professor : professorList) {
-            ResponseProfessorDTO response = new ResponseProfessorDTO();
-            BeanUtils.copyProperties(professor, response); // veri asla entity biçiminde döndürülmemeli. dto türünde olmalı. bu yüzden db'den gelen entity türünü dto'ya çevirdim.
-            responseList.add(response);
+            responseList.add(convertToResponseDTO(professor));
         }
         return responseList;
     }
 
 
     public ResponseProfessorDTO getProfessorById(Integer id) {
-        ResponseProfessorDTO response = new ResponseProfessorDTO();
-        Optional<Professor> professor = professorRepository.findById(id); // db'den prof'u çektim
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND));
 
-        if (professor.isPresent()) {
-            Professor dbProf = professor.get();
-            BeanUtils.copyProperties(dbProf, response);
-
-            List<ResponseTeachesDTO> teachesList = new ArrayList<>();
-
-            if (dbProf.getTeaches() != null) { // bulduğumuz prof'un verdiği course'ları dto'ya çevirip kullanıcıya döneceğiz.
-                for (Teaches teaches : dbProf.getTeaches()) {  // prof'un verdiği course'lar bir liste formatında döndüğü için foreach kullanarak her bir course'u dto'ya çeviriyoruz.
-                    ResponseTeachesDTO teachesDTO = new ResponseTeachesDTO();
-                    teachesDTO.setId(teaches.getId());
-                    teachesDTO.setProfessorName(teaches.getProfessor().getName());
-                    teachesDTO.setCourseName(teaches.getCourse().getName());
-                    teachesDTO.setStudentCount(teaches.getStudentCount());
-                    teachesDTO.setStartDate(teaches.getStartDate());
-                    teachesDTO.setEndingDate(teaches.getEndingDate());
-
-                    teachesList.add(teachesDTO);
-                }
-            }
-
-            response.setTeaches(teachesList);
-            return response;
-        }
-
-        throw new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND + " : " + id);
+        return convertToResponseDTO(professor);
     }
 
     public void deleteProfessor(Integer id) {
@@ -117,6 +91,29 @@ public class ProfessorService implements IProfessorService{
         }
 
         throw new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND + ": " + id);
+    }
+
+
+    private ResponseProfessorDTO convertToResponseDTO(Professor professor) {
+        ResponseProfessorDTO response = new ResponseProfessorDTO();
+        BeanUtils.copyProperties(professor, response); // gelen professor nesnesindeki teacch harici kısımlar (id, name, department) doğrudan response'a dönüştürülür.
+
+        List<ResponseTeachesDTO> teachesList = new ArrayList<>();
+        if (professor.getTeaches() != null) { // gelen prof'un teach'lerini dto'ya çevirip kullanıcıya döneceğiz.
+            for (Teaches teaches : professor.getTeaches()) { // professor.getTeaches() liste döner (bir professor birden fazla ders verebilir.)
+                ResponseTeachesDTO teachesDTO = new ResponseTeachesDTO();
+                teachesDTO.setId(teaches.getId());
+                teachesDTO.setProfessorName(teaches.getProfessor().getName());
+                teachesDTO.setCourseName(teaches.getCourse().getName());
+                teachesDTO.setStudentCount(teaches.getStudentCount());
+                teachesDTO.setStartDate(teaches.getStartDate());
+                teachesDTO.setEndingDate(teaches.getEndingDate());
+
+                teachesList.add(teachesDTO);
+            }
+        }
+        response.setTeaches(teachesList); // teach listesini prof içerisinde bulunan "List<ResponseTeachesDTO> teaches" içine doldurdum.
+        return response;
     }
 
 }
