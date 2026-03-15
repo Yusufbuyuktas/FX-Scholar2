@@ -36,8 +36,10 @@ public class CourseService implements ICourseService{
         Course course = new Course();// Db için çünkü dto ile değil entity ile çalışır
         BeanUtils.copyProperties(requestCourseDTO, course); //DTO -> Entity dönüşümü
         Course dbCourse = courseRepository.save(course);// Save method
-        BeanUtils.copyProperties(dbCourse, responseCourseDTO); // // entity'deki verileri response DTO'ya aktarır
 
+        System.out.println("LOG INFO: course added -> ID: " + dbCourse.getId() + ", Course: " + dbCourse.getName());
+
+        BeanUtils.copyProperties(dbCourse, responseCourseDTO); // // entity'deki verileri response DTO'ya aktarır
         return responseCourseDTO;
     }
 
@@ -61,6 +63,7 @@ public class CourseService implements ICourseService{
         Optional<Course> course = courseRepository.findById(id);// checking if there's a course
         if (course.isPresent()) {
             courseRepository.delete(course.get());
+            System.out.println("LOG INFO: course deleted -> ID: " + id);
             return;
         }
 
@@ -76,6 +79,8 @@ public class CourseService implements ICourseService{
             dbCourse.setCredit(requestCourseDTO.getCredit());
 
             Course updatedCourse = courseRepository.save(dbCourse);
+            System.out.println("LOG INFO: course updated -> ID: " + updatedCourse.getId());
+
             BeanUtils.copyProperties(updatedCourse, responseCourseDTO);
             return responseCourseDTO;
         }

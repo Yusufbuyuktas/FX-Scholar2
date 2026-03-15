@@ -39,6 +39,8 @@ public class ProfessorService implements IProfessorService{
         // parametreden gelen dto türünde aldığım veriyi, professor türüne (entity) çeviriyorum. çünkü db'ye kaydetmem lazım.
 
         Professor dbProfessor = professorRepository.save(professor); // jparepository'nin sağladığı save metodunu kullandık. save doğrudan entity nesneleri üzerinde çalışır.
+        System.out.println("LOG INFO: professor added -> ID: " + dbProfessor.getId() + ", Professor: " + dbProfessor.getName());
+
         BeanUtils.copyProperties(dbProfessor, response);
         return response; // kullanıcıya responsedto türünde bir sonuç göstermem lazım. bunun için dbPRofessor'ı response'a çevirdim.
     }
@@ -67,6 +69,8 @@ public class ProfessorService implements IProfessorService{
 
         if (professor.isPresent()) {
             professorRepository.delete(professor.get()); // delete, bir entity bekler.
+            System.out.println("LOG INFO: professor deleted -> ID: " + id);
+
             return;
         }
 
@@ -85,8 +89,9 @@ public class ProfessorService implements IProfessorService{
             dbProfessor.setDepartment(requestProfessorDTO.getDepartment());
 
             Professor updatedProfessor = professorRepository.save(dbProfessor);  // save, işlem yaparken eğer eşleşen kayıt varsa kaydın üzerine yazar. bu sebeple güncelleme için kullanabiliriz.
-            BeanUtils.copyProperties(updatedProfessor, response); // kullanıcı güncellediği kaydın son versiyonunun görmeli. bunun için de dto (response) türünde döndürmeliyiz.
+            System.out.println("LOG INFO: professor updated -> ID: " + updatedProfessor.getId());
 
+            BeanUtils.copyProperties(updatedProfessor, response); // kullanıcı güncellediği kaydın son versiyonunun görmeli. bunun için de dto (response) türünde döndürmeliyiz.
             return response;
         }
 

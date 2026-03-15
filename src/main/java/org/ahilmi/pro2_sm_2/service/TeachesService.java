@@ -54,7 +54,8 @@ public class TeachesService implements ITeachesService {
 
         // dto döndürmeliyiz
         Teaches dbTeaches = teachesRepository.save(teaches);
-        
+        System.out.println("LOG INFO: teach added -> ID: " + dbTeaches.getId());
+
         return convertToResponseDTO(dbTeaches);
     }
 
@@ -82,6 +83,8 @@ public class TeachesService implements ITeachesService {
             throw new ResourceNotFoundException(ErrorMessages.ERROR_TEACH_NOT_FOUND);
         }
         teachesRepository.deleteById(id);
+        System.out.println("LOG INFO: teach deleted -> ID: " + id);
+
     }
 
     @Override
@@ -101,6 +104,8 @@ public class TeachesService implements ITeachesService {
         dbTeaches.setEndingDate(request.getEndingDate());
 
         Teaches updated = teachesRepository.save(dbTeaches);
+        System.out.println("LOG INFO: teach updated -> ID: " + updated.getId());
+
         return convertToResponseDTO(updated);
     }
 
