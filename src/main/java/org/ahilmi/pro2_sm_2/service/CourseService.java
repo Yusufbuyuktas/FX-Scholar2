@@ -2,10 +2,12 @@ package org.ahilmi.pro2_sm_2.service;
 
 import org.ahilmi.pro2_sm_2.dto.RequestCourseDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseCourseDTO;
+import org.ahilmi.pro2_sm_2.dto.ResponseTeachesDTO;
 import org.ahilmi.pro2_sm_2.exception.ErrorMessages;
 import org.ahilmi.pro2_sm_2.exception.ResourceAlreadyExistsException;
 import org.ahilmi.pro2_sm_2.exception.ResourceNotFoundException;
 import org.ahilmi.pro2_sm_2.model.entity.Course;
+import org.ahilmi.pro2_sm_2.model.entity.Teaches;
 import org.ahilmi.pro2_sm_2.repository.CourseRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -41,27 +43,18 @@ public class CourseService implements ICourseService{
 
 
     public List<ResponseCourseDTO> getAllCourses() {
-         List<ResponseCourseDTO> responseCourseDTOList = new ArrayList<>();
-         List<Course> courseList = courseRepository.findAll(); // SELECT * FROM course; gibi
-         for (Course course : courseList) {
-             ResponseCourseDTO responseCourseDTO = new ResponseCourseDTO(); //Veriyi kullanıcıya DTO formatında döndürcez
-             BeanUtils.copyProperties(course, responseCourseDTO); // entityden dto ya
-             responseCourseDTOList.add(responseCourseDTO); // listeleme :D
-         }
-         return responseCourseDTOList;
+        List<ResponseCourseDTO> responseList = new ArrayList<>();
+        List<Course> courseList = courseRepository.findAll(); // SELECT * FROM course; gibi
+        for (Course course : courseList) {
+            responseList.add(convertToResponseDTO(course));
+        }
+        return responseList;
     }
 
     public ResponseCourseDTO getCourseById(Integer id) {
-        ResponseCourseDTO responseCourseDTO = new ResponseCourseDTO();
-        Optional<Course> course = courseRepository.findById(id);
-        if (course.isPresent()) {
-            Course dbCourse = course.get();
-            BeanUtils.copyProperties(dbCourse, responseCourseDTO);
-            return responseCourseDTO;
-        }
-
-        throw new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND);
-
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND));
+        return convertToResponseDTO(course);
     }
 
     public void deleteCourseById(Integer id) {
@@ -87,6 +80,31 @@ public class CourseService implements ICourseService{
             return responseCourseDTO;
         }
         throw new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND);
+    }
+
+
+    private ResponseCourseDTO convertToResponseDTO(Course course) {
+        ResponseCourseDTO response = new ResponseCourseDTO();
+        BeanUtils.copyProperties(course, response); // // gelen course nesnesindeki teacch harici kısımlar (name, credit)
+
+        List<ResponseTeachesDTO> teachesList = new ArrayList<>();
+
+        if (course.getTeaches() != null) {
+            for (Teaches teaches : course.getTeaches()) {
+                ResponseTeachesDTO teachesDTO = new ResponseTeachesDTO();
+                teachesDTO.setId(teaches.getId());
+                teachesDTO.setProfessorName(teaches.getProfessor().getName());
+                teachesDTO.setCourseName(teaches.getCourse().getName());
+                teachesDTO.setStudentCount(teaches.getStudentCount());
+                teachesDTO.setStartDate(teaches.getStartDate());
+                teachesDTO.setEndingDate(teaches.getEndingDate());
+
+                teachesList.add(teachesDTO);
+            }
+        }
+
+        response.setTeaches(teachesList);
+        return response;
     }
 
 }

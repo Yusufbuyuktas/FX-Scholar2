@@ -25,7 +25,7 @@ public class Course {
     @Column(name = "credit")
     private Integer credit;
 
-    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true) // course silşinidğinde ilgili teach de silinmeli.
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true) // course silşinidğinde ilgili teach de silinmeli.
     private List<Teaches> teaches;// course hakkında bilgi almak için.
 
 }
