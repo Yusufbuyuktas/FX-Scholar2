@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "courses")
 @Data
@@ -22,5 +24,8 @@ public class Course {
 
     @Column(name = "credit")
     private Integer credit;
+
+    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true) // course silşinidğinde ilgili teach de silinmeli.
+    private List<Teaches> teaches;// course hakkında bilgi almak için.
 
 }
