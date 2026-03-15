@@ -2,6 +2,9 @@ package org.ahilmi.pro2_sm_2.service;
 
 import org.ahilmi.pro2_sm_2.dto.RequestTeachesDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseTeachesDTO;
+import org.ahilmi.pro2_sm_2.exception.ErrorMessages;
+import org.ahilmi.pro2_sm_2.exception.ResourceAlreadyExistsException;
+import org.ahilmi.pro2_sm_2.exception.ResourceNotFoundException;
 import org.ahilmi.pro2_sm_2.model.entity.Course;
 import org.ahilmi.pro2_sm_2.model.entity.Professor;
 import org.ahilmi.pro2_sm_2.model.entity.Teaches;
@@ -33,22 +36,26 @@ public class TeachesService implements ITeachesService {
 
     @Override
     public ResponseTeachesDTO saveTeaches(RequestTeachesDTO request) {
-        // 1. İlişkili verileri kontrol et (Hoca ve Ders var mı?)
-        Professor prof = professorRepository.findById(request.getProfessorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profesör bulunamadı"));
-        
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ders bulunamadı"));
 
-        // 2. Entity oluştur ve verileri aktar
+        if (teachesRepository.existsByProfessorIdAndCourseId(request.getProfessorId(), request.getCourseId())) {
+            throw new ResourceAlreadyExistsException(ErrorMessages.ERROR_TEACH_ALREADY_EXIST);
+        }
+
+        Professor prof = professorRepository.findById(request.getProfessorId()) // teach içerisinde gelen professor db'de kayıtlı mı
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND));
+        
+        Course course = courseRepository.findById(request.getCourseId()) // teach içerisinde gelen course db'de kayıtlı mı
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND));
+
         Teaches teaches = new Teaches();
         BeanUtils.copyProperties(request, teaches);
         teaches.setProfessor(prof);
         teaches.setCourse(course);
 
-        // 3. Kaydet ve Response DTO'ya dönüştür
+        // dto döndürmeliyiz
         Teaches dbTeaches = teachesRepository.save(teaches);
-        
+        System.out.println("LOG INFO: teach added -> ID: " + dbTeaches.getId());
+
         return convertToResponseDTO(dbTeaches);
     }
 
@@ -66,28 +73,29 @@ public class TeachesService implements ITeachesService {
     @Override
     public ResponseTeachesDTO getTeachesById(Integer id) {
         Teaches teaches = teachesRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Atama bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_TEACH_NOT_FOUND));
         return convertToResponseDTO(teaches);
     }
 
     @Override
     public void deleteTeachesById(Integer id) {
         if (!teachesRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Silinecek atama bulunamadı");
+            throw new ResourceNotFoundException(ErrorMessages.ERROR_TEACH_NOT_FOUND);
         }
         teachesRepository.deleteById(id);
+        System.out.println("LOG INFO: teach deleted -> ID: " + id);
+
     }
 
     @Override
     public ResponseTeachesDTO updateTeachesById(Integer id, RequestTeachesDTO request) {
         Teaches dbTeaches = teachesRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Güncellenecek atama bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_TEACH_NOT_FOUND));
 
-        // Yeni hoca veya ders atandıysa onları da güncelle
         Professor prof = professorRepository.findById(request.getProfessorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Yeni profesör bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_PROFESSOR_NOT_FOUND));
         Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Yeni ders bulunamadı"));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessages.ERROR_COURSE_NOT_FOUND));
 
         dbTeaches.setProfessor(prof);
         dbTeaches.setCourse(course);
@@ -96,10 +104,12 @@ public class TeachesService implements ITeachesService {
         dbTeaches.setEndingDate(request.getEndingDate());
 
         Teaches updated = teachesRepository.save(dbTeaches);
+        System.out.println("LOG INFO: teach updated -> ID: " + updated.getId());
+
         return convertToResponseDTO(updated);
     }
 
-    // Helper Method: Entity'den DTO'ya dönüşümü tek yerden yapalım (Kod tekrarını önler)
+    // entity'den dto dönüşü tek noktadan yapılır
     private ResponseTeachesDTO convertToResponseDTO(Teaches entity) {
         ResponseTeachesDTO dto = new ResponseTeachesDTO();
         BeanUtils.copyProperties(entity, dto);

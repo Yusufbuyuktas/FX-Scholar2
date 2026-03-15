@@ -19,12 +19,12 @@ public class Teaches {
     private Integer id;
 
     // Bir profesörün birden fazla ataması olabilir.
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id", nullable = false)
     private Professor professor;
 
     // Bir dersin birden fazla ataması olabilir.
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 

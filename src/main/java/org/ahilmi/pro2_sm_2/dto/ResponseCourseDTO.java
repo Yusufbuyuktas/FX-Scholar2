@@ -4,6 +4,9 @@ package org.ahilmi.pro2_sm_2.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ahilmi.pro2_sm_2.model.entity.Teaches;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,5 +20,5 @@ public class ResponseCourseDTO {
     private Integer id;
     private String name;
     private Integer credit;
-
+    private List<ResponseTeachesDTO> teaches; // dersin hocasını ve atama detaylrını göstermek için
 }

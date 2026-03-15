@@ -26,6 +26,6 @@ public class Professor {
     @Column(name = "department")
     private String department;
 
-    @OneToMany(mappedBy = "professor")
+    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Teaches> teaches;
 }

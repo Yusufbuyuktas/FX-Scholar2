@@ -1,9 +1,14 @@
 package org.ahilmi.pro2_sm_2.controller;
 
 
+import jakarta.validation.Valid;
 import org.ahilmi.pro2_sm_2.dto.RequestCourseDTO;
 import org.ahilmi.pro2_sm_2.dto.ResponseCourseDTO;
 import org.ahilmi.pro2_sm_2.service.CourseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,29 +16,40 @@ import java.util.List;
 @RestController
 @RequestMapping("/rest/api/course")
 public class CourseController {
+    private final static Logger logger = LoggerFactory.getLogger(CourseController.class);
 
     private final CourseService courseService;
 
     public CourseController(CourseService courseService) {this.courseService = courseService;}
 
     @PostMapping(path = "/save")
-    public ResponseCourseDTO saveCourse(@RequestBody RequestCourseDTO requestCourseDTO ){
-        return courseService.saveCourse(requestCourseDTO);
+    public ResponseEntity<ResponseCourseDTO> saveCourse(@Valid @RequestBody RequestCourseDTO requestCourseDTO ){
+        ResponseCourseDTO response = courseService.saveCourse(requestCourseDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 created dönüyoruz
     }
 
     @GetMapping(path = "/list")
-    public List<ResponseCourseDTO> getAllCourses(){return courseService.getAllCourses();}
+    public ResponseEntity<List<ResponseCourseDTO>> getAllCourses(){
+        return new ResponseEntity<>(courseService.getAllCourses(), HttpStatus.OK); // 200 OK dönüyoruz
+    }
 
     @GetMapping(path = "/list/{id}")
-    public ResponseCourseDTO getCourseById(@PathVariable(name = "id") Integer id){
-        return courseService.getCourseById(id);
+    public ResponseEntity<ResponseCourseDTO> getCourseById(@PathVariable(name = "id") Integer id){
+        if (id == null || id == 0) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        logger.info("Get course by id {}", id);
+        return new ResponseEntity<>(courseService.getCourseById(id), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/delete/{id}")
-    public void deleteCourseById(@PathVariable(name = "id") Integer id){courseService.deleteCourseById(id);}
+    public ResponseEntity<Void> deleteCourseById(@PathVariable(name = "id") Integer id){
+        if (id == null || id == 0) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        courseService.deleteCourseById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @PutMapping(path = "/update/{id}")
-    public ResponseCourseDTO updateCourseById(@PathVariable(name = "id") Integer id, @RequestBody RequestCourseDTO requestCourseDTO){
-        return courseService.updateCourseById(id, requestCourseDTO);
+    public ResponseEntity<ResponseCourseDTO> updateCourseById(@PathVariable(name = "id") Integer id, @Valid @RequestBody RequestCourseDTO requestCourseDTO){
+        if (id == null || id == 0 || requestCourseDTO == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(courseService.updateCourseById(id, requestCourseDTO), HttpStatus.OK);
     }
 }

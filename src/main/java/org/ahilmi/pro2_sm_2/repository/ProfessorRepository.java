@@ -11,6 +11,7 @@ public interface ProfessorRepository extends JpaRepository<Professor, Integer> {
 
 
 
+    boolean existsByName(String name);
 
 
 

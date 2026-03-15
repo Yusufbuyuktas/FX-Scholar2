@@ -8,6 +8,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> { // il
                                                                         // jparepository interface'i içerisinde save, findByID gibi metotlar bulunuyor.
                                                                         // bu metotları extend ediyoruz, birer birer yazmamıza gerek yok.
 
-
+    boolean existsByName(String name);
 
 }
